@@ -126,23 +126,25 @@ function DebugSolver:match(target: {[string]: any}, conditions: {[any]: (any) ->
 			conditionCheck = conditions[subject]
 		end
 		
-		local result, customBroadcast = conditionCheck(value)
-		local newBroadcast = customBroadcast
-		
-		if (not customBroadcast) then
-			newBroadcast = subject .. (additionalInfo and " at Index " .. tostring(additionalInfo.Index) .. " of " .. additionalInfo.Source or '') .. DefaultMismatch
-		end
-		
-		if (not result) then
-			self:Debug(subject, "inserted to queue")
-			
-			table.insert(queue, {
-				message = newBroadcast;
-				type = "warn";
-			});
-			
-			if (hasDefaultValue) then
-				target[subject] = conditions[subject].DefaultValue
+		if (conditionCheck) then
+			local result, customBroadcast = conditionCheck(value)
+			local newBroadcast = customBroadcast
+
+			if (not customBroadcast) then
+				newBroadcast = subject .. (additionalInfo and " at Index " .. tostring(additionalInfo.Index) .. " of " .. additionalInfo.Source or '') .. DefaultMismatch
+			end
+
+			if (not result) then
+				self:Debug(subject, "inserted to queue")
+
+				table.insert(queue, {
+					message = newBroadcast;
+					type = "warn";
+				});
+
+				if (hasDefaultValue) then
+					target[subject] = conditions[subject].DefaultValue
+				end
 			end
 		end
 	end
